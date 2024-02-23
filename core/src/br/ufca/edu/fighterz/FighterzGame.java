@@ -27,7 +27,7 @@ public class FighterzGame extends Game {
 	public void create() {
 		batch = new SpriteBatch();
 		gameStage = new GameStage("KEN");
-		character = new Character(PlayableCharacter.SOL_BADGUY, .8f, 0, 0);
+		character = new Character(PlayableCharacter.RYU, .8f, 0, 0);
 		debugFPSLogger = new DebugFPSLogger(DebugFPSLogger.Type.WINDOW, GAME_TITLE);
 		shapeRenderer = new ShapeRenderer();
 
