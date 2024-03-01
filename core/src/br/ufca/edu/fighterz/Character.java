@@ -1,28 +1,19 @@
 package br.ufca.edu.fighterz;
 
+import br.ufca.edu.fighterz.sprites.CharacterAnimation;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-enum PlayerAction {
-    IDLE,
-    CROUCH,
-    MOVE_FORWARD,
-    MOVE_BACK,
-    AUTO_TAUNT,
-    ATTACK,
-}
-
 public class Character {
-    private final PlayableCharacter playableCharacter;
     private final Sprite sprite;
+    private final CharacterAnimation characterAnimation;
     private final Animation<TextureRegion> idleAnimation;
     private final Animation<TextureRegion> crouchAnimation;
     private final Animation<TextureRegion> moveForwardAnimation;
@@ -30,12 +21,6 @@ public class Character {
     private final Animation<TextureRegion> autoTauntAnimation;
     private final Animation<TextureRegion> attackAnimation;
     private float stateTime;
-    private final TextureRegion[] idleFrames;
-    private final TextureRegion[] crouchFrames;
-    private final TextureRegion[] moveForwardFrames;
-    private final TextureRegion[] moveBackFrames;
-    private final TextureRegion[] autoTauntFrames;
-    private final TextureRegion[] attackFrames;
     private boolean isWalkingLeft;
     private boolean isWalkingRight;
     private boolean isCrouching;
@@ -46,64 +31,24 @@ public class Character {
     private boolean shouldPlayIdleAnimation = false;
     private float currentStateTime = 0f;
     private boolean isAttacking = false;
-    private Rectangle rectangle;
-    private Rectangle attackRectangle;
+    private final Rectangle rectangle;
+    private final Rectangle attackRectangle;
 
     public Character(final PlayableCharacter playableCharacter, final float scale, final float x, final float y) {
-        this.playableCharacter = playableCharacter;
-        sprite = new Sprite();
-        rectangle = sprite.getBoundingRectangle();
-        attackRectangle = new Sprite().getBoundingRectangle();
+        this.scale = scale;
+        characterAnimation = new CharacterAnimation(playableCharacter, scale, 1f / 15f);
+        sprite = characterAnimation.getSprite();
+        rectangle = new Rectangle();
+        attackRectangle = new Rectangle();
         stateTime = 0f;
         position = new Vector2(x, y);
-        this.scale = scale;
 
-        final int idleFramesLength = getFramesLength(PlayerAction.IDLE);
-        final int crouchFramesLength = getFramesLength(PlayerAction.CROUCH);
-        final int moveForwardFramesLength = getFramesLength(PlayerAction.MOVE_FORWARD);
-        final int moveBackFramesLength = getFramesLength(PlayerAction.MOVE_BACK);
-        final int autoTauntFramesLength = getFramesLength(PlayerAction.AUTO_TAUNT);
-        final int attackFramesLength = getFramesLength(PlayerAction.ATTACK);
-
-        idleFrames = new TextureRegion[idleFramesLength];
-        crouchFrames = new TextureRegion[crouchFramesLength];
-        moveForwardFrames = new TextureRegion[moveForwardFramesLength];
-        moveBackFrames = new TextureRegion[moveBackFramesLength];
-        autoTauntFrames = new TextureRegion[autoTauntFramesLength];
-        attackFrames = new TextureRegion[attackFramesLength];
-
-        idleAnimation = initializeAnimation(PlayerAction.IDLE, idleFrames, idleFramesLength);
-        crouchAnimation = initializeAnimation(PlayerAction.CROUCH, crouchFrames, crouchFramesLength);
-        moveForwardAnimation = initializeAnimation(PlayerAction.MOVE_FORWARD, moveForwardFrames, moveForwardFramesLength);
-        moveBackAnimation = initializeAnimation(PlayerAction.MOVE_BACK, moveBackFrames, moveBackFramesLength);
-        autoTauntAnimation = initializeAnimation(PlayerAction.AUTO_TAUNT, autoTauntFrames, autoTauntFramesLength);
-        attackAnimation = initializeAnimation(PlayerAction.ATTACK, attackFrames, attackFramesLength);
-    }
-
-    private Animation<TextureRegion> initializeAnimation(PlayerAction playerAction, TextureRegion[] textureRegions, int spritesLength) {
-        for (int index = 0; index < spritesLength; index++) {
-            final Texture texture = new Texture(getFrameImage(playerAction, index));
-            textureRegions[index] = new TextureRegion(texture);
-        }
-        return new Animation<>(1f / 15f, textureRegions);
-    }
-
-    private int getFramesLength(PlayerAction playerAction) {
-        FileHandle dirHandle = Gdx.files.internal("images/sprites/characters/" + (playableCharacter + "/") + (playerAction + "/"));
-        FileHandle[] files = dirHandle.list();
-
-        int pngCount = 0;
-        for (FileHandle file : files) {
-            if (file.extension().equalsIgnoreCase("png")) {
-                pngCount++;
-            }
-        }
-
-        return pngCount;
-    }
-
-    private String getFrameImage(PlayerAction playerAction, int index) {
-        return "images/sprites/characters/" + (playableCharacter + "/") + (playerAction + "/") + (index + ".png");
+        idleAnimation = characterAnimation.getIdleAnimation();
+        crouchAnimation = characterAnimation.getCrouchAnimation();
+        moveForwardAnimation = characterAnimation.getMoveForwardAnimation();
+        moveBackAnimation = characterAnimation.getMoveBackAnimation();
+        autoTauntAnimation = characterAnimation.getAutoTauntAnimation();
+        attackAnimation = characterAnimation.getAttackAnimation();
     }
 
     public Vector2 getPosition() {
@@ -120,7 +65,6 @@ public class Character {
 
     public void update(float deltaTime, float stageWidth) {
         stateTime += deltaTime;
-
         if (Gdx.input.isKeyPressed(Input.Keys.A) && !isAttacking) {
             isWalkingLeft = true;
             isWalkingRight = false;
@@ -166,7 +110,7 @@ public class Character {
         isFacingRight = (position.x < stageWidth / 2f);
     }
 
-    public void render(SpriteBatch batch, float currentStateTime) {
+    public void render(SpriteBatch batch, float deltaTime) {
         TextureRegion currentFrame;
 
         if (isWalkingLeft) {
@@ -181,57 +125,43 @@ public class Character {
             currentFrame = crouchAnimation.getKeyFrame(stateTime, true);
         }
         else if (isAttacking) {
-            if (!attackAnimation.isAnimationFinished(this.currentStateTime)) {
-                currentFrame = attackAnimation.getKeyFrame(this.currentStateTime, false);
-                this.currentStateTime += currentStateTime;
+            if (!attackAnimation.isAnimationFinished(currentStateTime)) {
+                currentFrame = attackAnimation.getKeyFrame(currentStateTime, false);
+                currentStateTime += deltaTime;
             } else {
                 isAttacking = false;
                 currentFrame = idleAnimation.getKeyFrame(stateTime, true);
-                this.currentStateTime = 0f;
+                currentStateTime = 0f;
             }
         }
         else {
             currentFrame = idleAnimation.getKeyFrame(stateTime, true);
             if (shouldPlayIdleAnimation) {
-                if (!autoTauntAnimation.isAnimationFinished(this.currentStateTime)) {
-                    currentFrame = autoTauntAnimation.getKeyFrame(this.currentStateTime, false);
-                    this.currentStateTime += currentStateTime;
+                if (!autoTauntAnimation.isAnimationFinished(currentStateTime)) {
+                    currentFrame = autoTauntAnimation.getKeyFrame(currentStateTime, false);
+                    currentStateTime += deltaTime;
                 } else {
                     shouldPlayIdleAnimation = false;
                     currentFrame = idleAnimation.getKeyFrame(stateTime, true);
-                    this.currentStateTime = 0f;
+                    currentStateTime = 0f;
                 }
             }
         }
 
         sprite.setRegion(currentFrame);
         sprite.setFlip(!isFacingRight, false);
-        rectangle = sprite.getBoundingRectangle();
-        attackRectangle = sprite.getBoundingRectangle();
         if (isAttacking) {
             if (isFacingRight)
                 attackRectangle.set((position.x + 50 * scale), (sprite.getRegionHeight() - 35) * scale, 50 * scale, 20 * scale);
             else
                 attackRectangle.set((position.x), (sprite.getRegionHeight() - 35) * scale, 50 * scale, 20 * scale);
-        }
-        else rectangle.set((position.x + 14 * scale), position.y, 50 * scale, 106 * scale);
-        batch.draw(sprite, position.x, position.y,
-                sprite.getRegionWidth() * scale, sprite.getRegionHeight() * scale);
-    }
-
-    private void disposeTextureRegion(TextureRegion[] textureRegion) {
-        for (TextureRegion region : textureRegion) {
-            region.getTexture().dispose();
-        }
+        } else attackRectangle.set(position.x, position.y, 0, 0);
+        rectangle.set((position.x + 14 * scale), position.y, 50 * scale, 106 * scale);
+        characterAnimation.render(batch, position.x, position.y);
     }
 
     public void dispose() {
-        disposeTextureRegion(idleFrames);
-        disposeTextureRegion(crouchFrames);
-        disposeTextureRegion(moveForwardFrames);
-        disposeTextureRegion(moveBackFrames);
-        disposeTextureRegion(autoTauntFrames);
-        disposeTextureRegion(attackFrames);
+        characterAnimation.dispose();
         sprite.getTexture().dispose();
     }
 }
