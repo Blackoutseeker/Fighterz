@@ -30,9 +30,13 @@ public class Character {
     private float idleTimer = 0f;
     private boolean shouldPlayIdleAnimation = false;
     private float currentStateTime = 0f;
-    private boolean isAttacking = false;
+    private  boolean isStrongPunching = false;
+    private boolean isLightPunching = false;
+    private  boolean isLightKicking = false;
+    private  boolean  isStrongKicking = false;
     private final Rectangle rectangle;
     private final Rectangle attackRectangle;
+    private final InputHandler inputHandler;
 
     public Character(final PlayableCharacter playableCharacter, final float scale, final float x, final float y) {
         this.scale = scale;
@@ -42,7 +46,7 @@ public class Character {
         attackRectangle = new Rectangle();
         stateTime = 0f;
         position = new Vector2(x, y);
-
+        inputHandler = new InputHandler(isLightPunching, isStrongKicking, isLightKicking, idleTimer, isWalkingLeft, isWalkingRight, isCrouching, isStrongPunching);
         idleAnimation = characterAnimation.getIdleAnimation();
         crouchAnimation = characterAnimation.getCrouchAnimation();
         moveForwardAnimation = characterAnimation.getMoveForwardAnimation();
@@ -65,30 +69,15 @@ public class Character {
 
     public void update(float deltaTime, float stageWidth) {
         stateTime += deltaTime;
-        if (Gdx.input.isKeyPressed(Input.Keys.A) && !isAttacking) {
-            isWalkingLeft = true;
-            isWalkingRight = false;
-        }
-        else if (Gdx.input.isKeyPressed(Input.Keys.D) && !isAttacking) {
-            isWalkingLeft = false;
-            isWalkingRight = true;
-        }
-        else {
-            isWalkingLeft = false;
-            isWalkingRight = false;
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.K) && !isAttacking) {
-            isAttacking = true;
-        }
+        isWalkingLeft = inputHandler.getIsWalkingLeft();
+        isWalkingRight = inputHandler.getIsWalkingRight();
+        isCrouching = inputHandler.getIsCrouching();
+        isStrongPunching = inputHandler.getIsStrongPunching();
+        isLightPunching = inputHandler.getIsLightPunching();
+        isStrongKicking = inputHandler.getIsStrongKicking();
+        isLightKicking = inputHandler.getIsLightKicking();
 
-        isCrouching = Gdx.input.isKeyPressed(Input.Keys.S) && !isAttacking;
-        // AUTO_TAUNT
-        if (!isWalkingLeft && !isWalkingRight && !isCrouching && !isAttacking) {
-            idleTimer += deltaTime;
-        } else {
-            idleTimer =  0f;
-            shouldPlayIdleAnimation = false;
-        }
+        inputHandler.handleInput(deltaTime, shouldPlayIdleAnimation);
 
         if (idleTimer >= 7f) {
             shouldPlayIdleAnimation = true;
@@ -124,12 +113,12 @@ public class Character {
         else if (isCrouching) {
             currentFrame = crouchAnimation.getKeyFrame(stateTime, true);
         }
-        else if (isAttacking) {
+        else if (isLightPunching) {
             if (!attackAnimation.isAnimationFinished(currentStateTime)) {
                 currentFrame = attackAnimation.getKeyFrame(currentStateTime, false);
                 currentStateTime += deltaTime;
             } else {
-                isAttacking = false;
+                inputHandler.setIsLightPunching(false);
                 currentFrame = idleAnimation.getKeyFrame(stateTime, true);
                 currentStateTime = 0f;
             }
@@ -150,7 +139,7 @@ public class Character {
 
         sprite.setRegion(currentFrame);
         sprite.setFlip(!isFacingRight, false);
-        if (isAttacking) {
+        if (isLightPunching) {
             if (isFacingRight)
                 attackRectangle.set((position.x + 50 * scale), (sprite.getRegionHeight() - 35) * scale, 50 * scale, 20 * scale);
             else
