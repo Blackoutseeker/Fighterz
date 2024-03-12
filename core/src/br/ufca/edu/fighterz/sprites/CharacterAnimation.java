@@ -15,7 +15,10 @@ enum PlayerAction {
     MOVE_FORWARD,
     MOVE_BACK,
     AUTO_TAUNT,
-    ATTACK,
+    LIGHT_PUNCH,
+    STRONG_PUNCH,
+    LIGHT_KICK,
+    STRONG_KICK,
 }
 
 final public class CharacterAnimation {
@@ -28,13 +31,19 @@ final public class CharacterAnimation {
     private final TextureRegion[] moveForwardFrames;
     private final TextureRegion[] moveBackFrames;
     private final TextureRegion[] autoTauntFrames;
-    private final TextureRegion[] attackFrames;
+    private final TextureRegion[] lightPunchFrames;
+    private final TextureRegion[] strongPunchFrames;
+    private final TextureRegion[] lightKickFrames;
+    private final TextureRegion[] strongKickFrames;
     private final Animation<TextureRegion> idleAnimation;
     private final Animation<TextureRegion> crouchAnimation;
     private final Animation<TextureRegion> moveForwardAnimation;
     private final Animation<TextureRegion> moveBackAnimation;
     private final Animation<TextureRegion> autoTauntAnimation;
-    private final Animation<TextureRegion> attackAnimation;
+    private final Animation<TextureRegion> lightPunchAnimation;
+    private final Animation<TextureRegion> strongPunchAnimation;
+    private final Animation<TextureRegion> lightKickAnimation;
+    private final Animation<TextureRegion> strongKickAnimation;
 
     public CharacterAnimation(final PlayableCharacter playableCharacter, final float scale, final float frameDuration) {
         this.playableCharacter = playableCharacter;
@@ -47,21 +56,30 @@ final public class CharacterAnimation {
         final int moveForwardFramesLength = getFramesLength(PlayerAction.MOVE_FORWARD);
         final int moveBackFramesLength = getFramesLength(PlayerAction.MOVE_BACK);
         final int autoTauntFramesLength = getFramesLength(PlayerAction.AUTO_TAUNT);
-        final int attackFramesLength = getFramesLength(PlayerAction.ATTACK);
+        final int lightPunchFramesLength = getFramesLength(PlayerAction.LIGHT_PUNCH);
+        final int strongPunchFramesLength = getFramesLength(PlayerAction.STRONG_PUNCH);
+        final int lightKickFramesLength = getFramesLength(PlayerAction.LIGHT_KICK);
+        final int strongKickFramesLength = getFramesLength(PlayerAction.STRONG_KICK);
 
         idleFrames = new TextureRegion[idleFramesLength];
         crouchFrames = new TextureRegion[crouchFramesLength];
         moveForwardFrames = new TextureRegion[moveForwardFramesLength];
         moveBackFrames = new TextureRegion[moveBackFramesLength];
         autoTauntFrames = new TextureRegion[autoTauntFramesLength];
-        attackFrames = new TextureRegion[attackFramesLength];
+        lightPunchFrames = new TextureRegion[lightPunchFramesLength];
+        strongPunchFrames = new TextureRegion[strongPunchFramesLength];
+        lightKickFrames = new TextureRegion[lightKickFramesLength];
+        strongKickFrames = new TextureRegion[strongKickFramesLength];
 
         idleAnimation = initializeAnimation(PlayerAction.IDLE, idleFrames, idleFramesLength);
         crouchAnimation = initializeAnimation(PlayerAction.CROUCH, crouchFrames, crouchFramesLength);
         moveForwardAnimation = initializeAnimation(PlayerAction.MOVE_FORWARD, moveForwardFrames, moveForwardFramesLength);
         moveBackAnimation = initializeAnimation(PlayerAction.MOVE_BACK, moveBackFrames, moveBackFramesLength);
         autoTauntAnimation = initializeAnimation(PlayerAction.AUTO_TAUNT, autoTauntFrames, autoTauntFramesLength);
-        attackAnimation = initializeAnimation(PlayerAction.ATTACK, attackFrames, attackFramesLength);
+        lightPunchAnimation = initializeAnimation(PlayerAction.LIGHT_PUNCH, lightPunchFrames, lightPunchFramesLength);
+        strongPunchAnimation = initializeAnimation(PlayerAction.STRONG_PUNCH, strongPunchFrames, strongPunchFramesLength);
+        lightKickAnimation = initializeAnimation(PlayerAction.LIGHT_KICK, lightKickFrames, lightKickFramesLength);
+        strongKickAnimation = initializeAnimation(PlayerAction.STRONG_KICK, strongKickFrames, strongKickFramesLength);
     }
 
     private Animation<TextureRegion> initializeAnimation(PlayerAction playerAction, TextureRegion[] textureRegions, int spritesLength) {
@@ -106,7 +124,10 @@ final public class CharacterAnimation {
         disposeTextureRegion(moveForwardFrames);
         disposeTextureRegion(moveBackFrames);
         disposeTextureRegion(autoTauntFrames);
-        disposeTextureRegion(attackFrames);
+        disposeTextureRegion(lightPunchFrames);
+        disposeTextureRegion(strongPunchFrames);
+        disposeTextureRegion(lightKickFrames);
+        disposeTextureRegion(strongKickFrames);
         sprite.getTexture().dispose();
     }
 
@@ -134,7 +155,19 @@ final public class CharacterAnimation {
         return autoTauntAnimation;
     }
 
-    public Animation<TextureRegion> getAttackAnimation() {
-        return attackAnimation;
+    public Animation<TextureRegion> getLightPunchAnimation() {
+        return lightPunchAnimation;
+    }
+
+    public Animation<TextureRegion> getStrongPunchAnimation() {
+        return strongPunchAnimation;
+    }
+
+    public Animation<TextureRegion> getLightKickAnimation() {
+        return lightKickAnimation;
+    }
+
+    public Animation<TextureRegion> getStrongKickAnimation() {
+        return strongKickAnimation;
     }
 }
