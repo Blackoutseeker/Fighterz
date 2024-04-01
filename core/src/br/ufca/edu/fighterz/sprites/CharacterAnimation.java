@@ -1,6 +1,7 @@
 package br.ufca.edu.fighterz.sprites;
 
 import br.ufca.edu.fighterz.PlayableCharacter;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
@@ -19,6 +20,7 @@ enum PlayerAction {
     STRONG_PUNCH,
     LIGHT_KICK,
     STRONG_KICK,
+    LIGHT_HIT,
 }
 
 final public class CharacterAnimation {
@@ -35,6 +37,7 @@ final public class CharacterAnimation {
     private final TextureRegion[] strongPunchFrames;
     private final TextureRegion[] lightKickFrames;
     private final TextureRegion[] strongKickFrames;
+    private final TextureRegion[] lightHitFrames;
     private final Animation<TextureRegion> idleAnimation;
     private final Animation<TextureRegion> crouchAnimation;
     private final Animation<TextureRegion> moveForwardAnimation;
@@ -44,6 +47,7 @@ final public class CharacterAnimation {
     private final Animation<TextureRegion> strongPunchAnimation;
     private final Animation<TextureRegion> lightKickAnimation;
     private final Animation<TextureRegion> strongKickAnimation;
+    private final Animation<TextureRegion> lightHitAnimation;
 
     public CharacterAnimation(final PlayableCharacter playableCharacter, final float scale, final float frameDuration) {
         this.playableCharacter = playableCharacter;
@@ -60,6 +64,7 @@ final public class CharacterAnimation {
         final int strongPunchFramesLength = getFramesLength(PlayerAction.STRONG_PUNCH);
         final int lightKickFramesLength = getFramesLength(PlayerAction.LIGHT_KICK);
         final int strongKickFramesLength = getFramesLength(PlayerAction.STRONG_KICK);
+        final int lightHitFramesLength = getFramesLength(PlayerAction.LIGHT_HIT);
 
         idleFrames = new TextureRegion[idleFramesLength];
         crouchFrames = new TextureRegion[crouchFramesLength];
@@ -70,6 +75,7 @@ final public class CharacterAnimation {
         strongPunchFrames = new TextureRegion[strongPunchFramesLength];
         lightKickFrames = new TextureRegion[lightKickFramesLength];
         strongKickFrames = new TextureRegion[strongKickFramesLength];
+        lightHitFrames = new TextureRegion[lightHitFramesLength];
 
         idleAnimation = initializeAnimation(PlayerAction.IDLE, idleFrames, idleFramesLength);
         crouchAnimation = initializeAnimation(PlayerAction.CROUCH, crouchFrames, crouchFramesLength);
@@ -80,6 +86,7 @@ final public class CharacterAnimation {
         strongPunchAnimation = initializeAnimation(PlayerAction.STRONG_PUNCH, strongPunchFrames, strongPunchFramesLength);
         lightKickAnimation = initializeAnimation(PlayerAction.LIGHT_KICK, lightKickFrames, lightKickFramesLength);
         strongKickAnimation = initializeAnimation(PlayerAction.STRONG_KICK, strongKickFrames, strongKickFramesLength);
+        lightHitAnimation = initializeAnimation(PlayerAction.LIGHT_HIT, lightHitFrames, lightHitFramesLength);
     }
 
     private Animation<TextureRegion> initializeAnimation(PlayerAction playerAction, TextureRegion[] textureRegions, int spritesLength) {
@@ -128,6 +135,7 @@ final public class CharacterAnimation {
         disposeTextureRegion(strongPunchFrames);
         disposeTextureRegion(lightKickFrames);
         disposeTextureRegion(strongKickFrames);
+        disposeTextureRegion(lightHitFrames);
         sprite.getTexture().dispose();
     }
 
@@ -169,5 +177,9 @@ final public class CharacterAnimation {
 
     public Animation<TextureRegion> getStrongKickAnimation() {
         return strongKickAnimation;
+    }
+
+    public Animation<TextureRegion> getLightHitAnimation() {
+        return lightHitAnimation;
     }
 }
