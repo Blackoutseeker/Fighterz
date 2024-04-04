@@ -40,8 +40,8 @@ public class FighterzGame extends Game {
 
 		float worldCenter = camera.viewportWidth / 2f;
 		camera.position.x = worldCenter;
-		character1 = new Character(PlayableCharacter.RYU, .8f, worldCenter, 10, true);
-		character2 = new Character(PlayableCharacter.RYU, .8f, worldCenter + 80, 10, false);
+		character1 = new Character(PlayableCharacter.RYU, .8f, worldCenter, 10, false);
+		character2 = new Character(PlayableCharacter.RYU, .8f, worldCenter + 80, 10, true);
 
 		float cameraHeight = camera.viewportHeight;
 		float leftX = camera.position.x - worldCenter;
