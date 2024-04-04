@@ -29,17 +29,16 @@ public final class Character {
     private final Vector2 position;
     private final CharacterCollision collision;
     private final InputHandler inputHandler;
-    private final boolean shouldListenInputs;
+
 
     public Character(final PlayableCharacter playableCharacter, final float scale,
                      final float x, final float y,
-                     final boolean shouldListenInputs) {
+                     final boolean isSecondPlayer) {
         playerState = new PlayerState();
         characterAnimation = new CharacterAnimation(playableCharacter, scale, 1f / 12f);
         sprite = characterAnimation.getSprite();
         position = new Vector2(x, y);
-        this.shouldListenInputs = shouldListenInputs;
-        inputHandler = new InputHandler(playerState);
+        inputHandler = new InputHandler(playerState, isSecondPlayer);
         collision = new CharacterCollision(playerState, scale, position);
 
         idleAnimation = characterAnimation.getIdleAnimation();
@@ -66,7 +65,7 @@ public final class Character {
                        CharacterCollision anotherCharacterCollision, Vector2 anotherCharacterPosition,
                        Rectangle leftWall, Rectangle rightWall) {
         playerState.stateTime += deltaTime;
-        if (shouldListenInputs) inputHandler.handleInput(deltaTime);
+        inputHandler.handleInput(deltaTime);
 
         if (collision.getHit(anotherCharacterCollision.getAttackRectangle(), deltaTime, anotherCharacterPosition))
             playerState.isGettingHit = true;
