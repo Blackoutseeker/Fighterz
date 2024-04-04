@@ -4,14 +4,13 @@ import br.ufca.edu.fighterz.state.PlayerState;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
-public final class InputHandler extends SpecialAttackGame{
+public final class InputHandler{
     private final PlayerState playerState;
         private boolean isSecondPlayer;
 
         public InputHandler(PlayerState playerState, boolean isSecondPlayer) {
             this.playerState = playerState;
             this.isSecondPlayer = isSecondPlayer;
-            super.create();
         }
     public void handleInput(final float deltaTime) {
         playerState.isPlayerInputLocked = Gdx.input.isKeyPressed(Input.Keys.S) && Gdx.input.isKeyPressed(Input.Keys.W);
@@ -43,6 +42,18 @@ public final class InputHandler extends SpecialAttackGame{
             }
             else if ((Gdx.input.isKeyJustPressed(Input.Keys.I) &&!isSecondPlayer) || (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_8) && isSecondPlayer) && !playerState.isAttacking) {
                 playerState.isStrongKicking = true;
+                playerState.isAttacking = true;
+            }
+            else if((Gdx.input.isKeyJustPressed(Input.Keys.U) &&!isSecondPlayer) || (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_1) && isSecondPlayer) && !playerState.isAttacking){
+                playerState.isDoingSpecial0 = true;
+                playerState.isAttacking = true;
+            }
+            else if((Gdx.input.isKeyJustPressed(Input.Keys.O) &&!isSecondPlayer) || (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_2) && isSecondPlayer) && !playerState.isAttacking){
+                playerState.isDoingSpecial1 = true;
+                playerState.isAttacking = true;
+            }
+            else if((Gdx.input.isKeyJustPressed(Input.Keys.P) &&!isSecondPlayer) || (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_3) && isSecondPlayer) && !playerState.isAttacking){
+                playerState.isDoingSpecial2 = true;
                 playerState.isAttacking = true;
             }
 
