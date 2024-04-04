@@ -1,25 +1,26 @@
 package br.ufca.edu.fighterz;
 
 import br.ufca.edu.fighterz.state.PlayerState;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
-public final class InputHandler {
+public final class InputHandler extends SpecialAttackGame{
     private final PlayerState playerState;
+        private boolean isSecondPlayer;
 
-    public InputHandler(final PlayerState playerState) {
-        this.playerState = playerState;
-    }
-
+        public InputHandler(PlayerState playerState, boolean isSecondPlayer) {
+            this.playerState = playerState;
+            this.isSecondPlayer = isSecondPlayer;
+            super.create();
+        }
     public void handleInput(final float deltaTime) {
         playerState.isPlayerInputLocked = Gdx.input.isKeyPressed(Input.Keys.S) && Gdx.input.isKeyPressed(Input.Keys.W);
         if (!playerState.isPlayerInputLocked) {
-            if (Gdx.input.isKeyPressed(Input.Keys.A) && !playerState.isAttacking) {
+            if ((Gdx.input.isKeyPressed(Input.Keys.A) && !isSecondPlayer) || (Gdx.input.isKeyPressed(Input.Keys.LEFT) && isSecondPlayer) && !playerState.isAttacking) {
                 playerState.isWalkingLeft = true;
                 playerState.isWalkingRight = false;
             }
-            else if (Gdx.input.isKeyPressed(Input.Keys.D) && !playerState.isAttacking) {
+            else if ((Gdx.input.isKeyPressed(Input.Keys.D) && !isSecondPlayer) || (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && isSecondPlayer) && !playerState.isAttacking) {
                 playerState.isWalkingLeft = false;
                 playerState.isWalkingRight = true;
             }
@@ -28,24 +29,25 @@ public final class InputHandler {
                 playerState.isWalkingRight = false;
             }
 
-            if (Gdx.input.isKeyJustPressed(Input.Keys.K) && !playerState.isAttacking) {
+            if ((Gdx.input.isKeyJustPressed(Input.Keys.K) &&!isSecondPlayer)|| (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_5) && isSecondPlayer) && !playerState.isAttacking) {
                 playerState.isLightPunching = true;
                 playerState.isAttacking = true;
             }
-            else if (Gdx.input.isKeyJustPressed(Input.Keys.J) && !playerState.isAttacking) {
+            else if ((Gdx.input.isKeyJustPressed(Input.Keys.J) &&!isSecondPlayer) || (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_4) && isSecondPlayer) && !playerState.isAttacking) {
                 playerState.isStrongPunching = true;
                 playerState.isAttacking = true;
             }
-            else if (Gdx.input.isKeyJustPressed(Input.Keys.L) && !playerState.isAttacking) {
+            else if ((Gdx.input.isKeyJustPressed(Input.Keys.L) &&!isSecondPlayer) || (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_6) && isSecondPlayer) && !playerState.isAttacking) {
                 playerState.isLightKicking = true;
                 playerState.isAttacking = true;
             }
-            else if (Gdx.input.isKeyJustPressed(Input.Keys.I) && !playerState.isAttacking) {
+            else if ((Gdx.input.isKeyJustPressed(Input.Keys.I) &&!isSecondPlayer) || (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_8) && isSecondPlayer) && !playerState.isAttacking) {
                 playerState.isStrongKicking = true;
                 playerState.isAttacking = true;
             }
 
-            playerState.isCrouching = Gdx.input.isKeyPressed(Input.Keys.S) && !playerState.isAttacking;
+
+            playerState.isCrouching = (Gdx.input.isKeyPressed(Input.Keys.S) &&!isSecondPlayer) || (Gdx.input.isKeyPressed(Input.Keys.DOWN) && isSecondPlayer) && !playerState.isAttacking;
 
             if (!playerState.isWalkingLeft && !playerState.isWalkingRight
                     && !playerState.isCrouching && !playerState.isAttacking) {
