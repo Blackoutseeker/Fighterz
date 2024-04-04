@@ -16,6 +16,9 @@ public class PlayerState {
     public boolean isAttacking = false;
     public boolean isGettingHit = false;
     public boolean isPlayerInputLocked = false;
+    public boolean isDoingSpecial0 = false;
+    public boolean isDoingSpecial1 = false;
+    public boolean isDoingSpecial2 = false;
 
     public PlayerState() {}
 
