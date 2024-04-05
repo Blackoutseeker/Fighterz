@@ -5,6 +5,7 @@ import br.ufca.edu.fighterz.sprites.CharacterAnimation;
 import br.ufca.edu.fighterz.collision.CharacterCollision;
 import br.ufca.edu.fighterz.collision.Hitbox;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -29,16 +30,21 @@ public final class Character {
     private final Vector2 position;
     private final CharacterCollision collision;
     private final InputHandler inputHandler;
+    private final AudioManager audioManager;
+    private final boolean isSecondPlayer;
 
 
     public Character(final PlayableCharacter playableCharacter, final float scale,
                      final float x, final float y,
-                     final boolean isSecondPlayer) {
+                     final boolean isSecondPlayer,
+                     final AudioManager audioManager) {
+        this.audioManager = audioManager;
+        this.isSecondPlayer = isSecondPlayer;
         playerState = new PlayerState();
         characterAnimation = new CharacterAnimation(playableCharacter, scale, 1f / 12f);
         sprite = characterAnimation.getSprite();
         position = new Vector2(x, y);
-        inputHandler = new InputHandler(playerState, isSecondPlayer);
+        inputHandler = new InputHandler(playerState, audioManager, isSecondPlayer);
         collision = new CharacterCollision(playerState, scale, position);
 
         idleAnimation = characterAnimation.getIdleAnimation();
@@ -61,14 +67,22 @@ public final class Character {
         return collision;
     }
 
-    public void update(float deltaTime,
-                       CharacterCollision anotherCharacterCollision, Vector2 anotherCharacterPosition,
+    public void update(float deltaTime, CharacterCollision anotherCharacterCollision,
+                       Vector2 anotherCharacterPosition,
                        Rectangle leftWall, Rectangle rightWall) {
+
         playerState.stateTime += deltaTime;
         inputHandler.handleInput(deltaTime);
 
-        if (collision.getHit(anotherCharacterCollision.getAttackRectangle(), deltaTime, anotherCharacterPosition))
+        if (collision.getHit(anotherCharacterCollision.getAttackRectangle(), deltaTime, anotherCharacterPosition)) {
+            if (!playerState.isGettingHit) {
+                if(!isSecondPlayer)
+                    audioManager.playCharacterSound(0, 5);
+                else
+                    audioManager.playCharacterSound(1, 5);
+            }
             playerState.isGettingHit = true;
+        }
 
         if (playerState.idleTimer >= 7f) {
             playerState.shouldPlayIdleAnimation = true;
@@ -238,6 +252,7 @@ public final class Character {
                 };
             }
             else if (playerState.isStrongKicking) {
+                //audioManager.playCharacterSound(0,3);
                 hitboxType = CharacterCollision.HitboxType.STRONG_KICK;
                 currentFrameIndex = strongKickAnimation.getKeyFrameIndex(playerState.currentStateTime);
                 startIndex = 3; endIndex = 4;
