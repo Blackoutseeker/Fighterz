@@ -1,13 +1,13 @@
 package br.ufca.edu.fighterz;
 
+import br.ufca.edu.fighterz.interfaces.AudioManagerBehavior;
+
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.audio.Music;
 
-
-public class AudioManager {
-
+public final class AudioManager implements AudioManagerBehavior {
     private final AssetManager assetManager;
     private Music backgroundMusic;
     private Sound[][] characterSounds;
@@ -16,6 +16,7 @@ public class AudioManager {
         assetManager = new AssetManager();
     }
 
+    @Override
     public void load () {
         try {
             loadSounds();
@@ -28,12 +29,10 @@ public class AudioManager {
     }
 
     private void loadSounds() {
-
         characterSounds = new Sound[2][11];
-
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 11; j++) {
-                String characterName = (i == 0) ? "ryu" : "sol_badguy";
+                String characterName = (i == 0) ? "RYU" : "SOL_BADGUY";
                 String soundFileName = getSoundType(j) + ".mp3";
                 AssetDescriptor<Sound> assetDescriptor = new AssetDescriptor<>(
                         "sounds/" +
@@ -62,22 +61,21 @@ public class AudioManager {
     }
 
     private void loadMusic() {
-
         AssetDescriptor<Music> assetDescriptor = new AssetDescriptor<>(
                 "sounds/Theme_background.mp3", Music.class);
         assetManager.load(assetDescriptor);
     }
 
-    public void playCharacterSound(int characterIndex, int soundIndex) {
-        if (characterIndex >= 0 && characterIndex < characterSounds.length &&
-                soundIndex >= 0 && soundIndex < characterSounds[characterIndex].length) {
+    @Override
+    public void playCharacterSound(PlayableCharacter playableCharacter, int soundIndex) {
+        if (soundIndex >= 0 && soundIndex < characterSounds[playableCharacter.ordinal()].length) {
             Sound sound = assetManager.get(
-                    "sounds/" + ((characterIndex == 0) ?
-                            "ryu" : "sol_badguy") + "/" + getSoundType(soundIndex) + ".mp3", Sound.class);
+                    "sounds/" + playableCharacter + "/" + getSoundType(soundIndex) + ".mp3", Sound.class);
             sound.play(0.6f);
         }
     }
 
+    @Override
     public void playBackgroundMusic() {
         try {
             backgroundMusic = assetManager.get("sounds/Theme_background.mp3", Music.class);
@@ -88,6 +86,8 @@ public class AudioManager {
             System.err.println("Erro ao reproduzir backgroundMusic" + e.getMessage());
         }
     }
+
+    @Override
     public void dispose() {
         assetManager.dispose();
     }
