@@ -1,11 +1,11 @@
 package br.ufca.edu.fighterz;
 
+import br.ufca.edu.fighterz.interfaces.CharacterBehavior;
 import br.ufca.edu.fighterz.state.PlayerState;
 import br.ufca.edu.fighterz.sprites.CharacterAnimation;
 import br.ufca.edu.fighterz.collision.CharacterCollision;
 import br.ufca.edu.fighterz.collision.Hitbox;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -13,7 +13,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-public final class Character {
+public final class Character implements CharacterBehavior {
+    private final PlayableCharacter playableCharacter;
     private final Sprite sprite;
     private final CharacterAnimation characterAnimation;
     private final PlayerState playerState;
@@ -27,24 +28,27 @@ public final class Character {
     private final Animation<TextureRegion> lightKickAnimation;
     private final Animation<TextureRegion> strongKickAnimation;
     private final Animation<TextureRegion> lightHitAnimation;
+    private final Animation<TextureRegion> blockAnimation;
     private final Vector2 position;
     private final CharacterCollision collision;
     private final InputHandler inputHandler;
     private final AudioManager audioManager;
     private final boolean isSecondPlayer;
 
-
     public Character(final PlayableCharacter playableCharacter, final float scale,
                      final float x, final float y,
                      final boolean isSecondPlayer,
                      final AudioManager audioManager) {
+        this.playableCharacter = playableCharacter;
         this.audioManager = audioManager;
         this.isSecondPlayer = isSecondPlayer;
         playerState = new PlayerState();
         characterAnimation = new CharacterAnimation(playableCharacter, scale, 1f / 12f);
         sprite = characterAnimation.getSprite();
         position = new Vector2(x, y);
-        inputHandler = new InputHandler(playerState, audioManager, isSecondPlayer);
+        inputHandler = isSecondPlayer ?
+                new Input2(playableCharacter, playerState, audioManager) :
+                new Input1(playableCharacter, playerState, audioManager);
         collision = new CharacterCollision(playerState, scale, position);
 
         idleAnimation = characterAnimation.getIdleAnimation();
@@ -57,40 +61,63 @@ public final class Character {
         lightKickAnimation = characterAnimation.getLightKickAnimation();
         strongKickAnimation = characterAnimation.getStrongKickAnimation();
         lightHitAnimation = characterAnimation.getLightHitAnimation();
+        blockAnimation = characterAnimation.getBlockAnimation();
     }
 
+    @Override
     public Vector2 getPosition() {
         return position;
     }
 
+    @Override
     public CharacterCollision getCollision() {
         return collision;
     }
 
+    @Override
+    public PlayerState getPlayerState() {
+        return playerState;
+    }
+
+    @Override
     public void update(float deltaTime, CharacterCollision anotherCharacterCollision,
                        Vector2 anotherCharacterPosition,
                        Rectangle leftWall, Rectangle rightWall) {
-
         playerState.stateTime += deltaTime;
         inputHandler.handleInput(deltaTime);
 
         if (collision.getHit(anotherCharacterCollision.getAttackRectangle(), deltaTime, anotherCharacterPosition)) {
-            if (!playerState.isGettingHit) {
-                if(!isSecondPlayer)
-                    audioManager.playCharacterSound(0, 5);
-                else
-                    audioManager.playCharacterSound(1, 5);
+            final boolean isBlocking = collision.isBlocking();
+            if (isBlocking) {
+                playerState.isBlocking = true;
             }
-            playerState.isGettingHit = true;
+            if (!playerState.isGettingHit && !isBlocking) {
+                if (!isSecondPlayer)
+                    audioManager.playCharacterSound(playableCharacter, 5);
+                else
+                    audioManager.playCharacterSound(playableCharacter, 5);
+                playerState.isGettingHit = true;
+                playerState.life -= 10;
+            }
+
+            playerState.idleTimer = 0f;
+            playerState.autoTauntStateTime = 0f;
+
+            playerState.shouldPlayAutoTauntAnimation = false;
+            playerState.isAttacking = false;
+            playerState.isLightPunching = false;
+            playerState.isStrongPunching = false;
+            playerState.isLightKicking = false;
+            playerState.isStrongKicking = false;
         }
 
         if (playerState.idleTimer >= 7f) {
-            playerState.shouldPlayIdleAnimation = true;
+            playerState.shouldPlayAutoTauntAnimation = true;
             playerState.idleTimer = 0f;
         }
 
         float x = 100f * deltaTime;
-        if (playerState.isWalkingLeft) {
+        if (playerState.isWalkingLeft && !playerState.isGettingHit && !playerState.isBlocking) {
             if (collision.checkBodyCollision(anotherCharacterCollision.getBodyRectangle())) {
                 if (!playerState.isFacingRight && !anotherCharacterCollision.checkBodyCollision(leftWall))
                     anotherCharacterPosition.sub(x, 0);
@@ -98,7 +125,7 @@ public final class Character {
             if (!collision.checkBodyCollision(leftWall))
                 position.sub(x, 0);
         }
-        else if (playerState.isWalkingRight) {
+        else if (playerState.isWalkingRight && !playerState.isGettingHit && !playerState.isBlocking) {
             if (collision.checkBodyCollision(anotherCharacterCollision.getBodyRectangle())) {
                 if (playerState.isFacingRight && !anotherCharacterCollision.checkBodyCollision(rightWall))
                     anotherCharacterPosition.add(x, 0);
@@ -106,7 +133,6 @@ public final class Character {
             if (!collision.checkBodyCollision(rightWall))
                 position.add(x, 0);
         }
-
 
         if (collision.checkBodyCollision(anotherCharacterCollision.getBodyRectangle())
                 && !anotherCharacterCollision.checkBodyCollision(leftWall)
@@ -120,6 +146,7 @@ public final class Character {
         playerState.isFacingRight = (position.x < anotherCharacterPosition.x);
     }
 
+    @Override
     public void render(SpriteBatch batch, float deltaTime) {
         TextureRegion currentFrame;
 
@@ -134,7 +161,17 @@ public final class Character {
                 playerState.currentStateTime = 0f;
             }
         }
-
+        else if (playerState.isBlocking) {
+            if (!blockAnimation.isAnimationFinished(playerState.currentStateTime)) {
+                currentFrame = blockAnimation.getKeyFrame(playerState.currentStateTime, false);
+                playerState.currentStateTime += deltaTime;
+            }
+            else {
+                playerState.isBlocking = false;
+                currentFrame = idleAnimation.getKeyFrame(playerState.currentStateTime, true);
+                playerState.currentStateTime = 0f;
+            }
+        }
         else if (playerState.isWalkingLeft) {
             currentFrame = moveForwardAnimation.getKeyFrame(playerState.stateTime, true);
             if (playerState.isFacingRight)
@@ -199,15 +236,15 @@ public final class Character {
         }
         else {
             currentFrame = idleAnimation.getKeyFrame(playerState.stateTime, true);
-            if (playerState.shouldPlayIdleAnimation) {
-                if (!autoTauntAnimation.isAnimationFinished(playerState.currentStateTime)) {
-                    currentFrame = autoTauntAnimation.getKeyFrame(playerState.currentStateTime, false);
-                    playerState.currentStateTime += deltaTime;
+            if (playerState.shouldPlayAutoTauntAnimation) {
+                if (!autoTauntAnimation.isAnimationFinished(playerState.autoTauntStateTime)) {
+                    currentFrame = autoTauntAnimation.getKeyFrame(playerState.autoTauntStateTime, false);
+                    playerState.autoTauntStateTime += deltaTime;
                 }
                 else {
-                    playerState.shouldPlayIdleAnimation = false;
+                    playerState.shouldPlayAutoTauntAnimation = false;
                     currentFrame = idleAnimation.getKeyFrame(playerState.stateTime, true);
-                    playerState.currentStateTime = 0f;
+                    playerState.autoTauntStateTime = 0f;
                 }
             }
         }
@@ -252,7 +289,6 @@ public final class Character {
                 };
             }
             else if (playerState.isStrongKicking) {
-                //audioManager.playCharacterSound(0,3);
                 hitboxType = CharacterCollision.HitboxType.STRONG_KICK;
                 currentFrameIndex = strongKickAnimation.getKeyFrameIndex(playerState.currentStateTime);
                 startIndex = 3; endIndex = 4;
@@ -271,6 +307,7 @@ public final class Character {
         characterAnimation.render(batch, position.x, position.y);
     }
 
+    @Override
     public void dispose() {
         characterAnimation.dispose();
         sprite.getTexture().dispose();
