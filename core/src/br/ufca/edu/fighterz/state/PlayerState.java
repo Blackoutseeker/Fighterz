@@ -4,7 +4,8 @@ public class PlayerState {
     public float stateTime = 0f;
     public float idleTimer = 0f;
     public float currentStateTime = 0f;
-    public boolean shouldPlayIdleAnimation = false;
+    public float autoTauntStateTime = 0f;
+    public boolean shouldPlayAutoTauntAnimation = false;
     public boolean isWalkingLeft = false;
     public boolean isWalkingRight = false;
     public boolean isCrouching = false;
@@ -15,14 +16,10 @@ public class PlayerState {
     public  boolean isStrongKicking = false;
     public boolean isAttacking = false;
     public boolean isGettingHit = false;
+    public boolean isBlocking = false;
     public boolean isPlayerInputLocked = false;
     public boolean isDoingSpecial0 = false;
     public boolean isDoingSpecial1 = false;
     public boolean isDoingSpecial2 = false;
-
-    public PlayerState() {}
-
-    public PlayerState(boolean isFacingRight) {
-        this.isFacingRight = isFacingRight;
-    }
+    public float life = 200;
 }
