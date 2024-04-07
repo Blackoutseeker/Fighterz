@@ -1,5 +1,7 @@
 package br.ufca.edu.fighterz;
 
+import br.ufca.edu.fighterz.interfaces.GameStageBehavior;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
@@ -7,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public class GameStage {
+public final class GameStage implements GameStageBehavior {
     private final String name;
     private final TextureRegion[] stageFrames;
     private final Animation<TextureRegion> stageAnimation;
@@ -21,7 +23,7 @@ public class GameStage {
         stageAnimation = initializeAnimation(stageFrames, stageSpritesLength);
     }
 
-    private Animation<TextureRegion> initializeAnimation(TextureRegion[] textureRegions, int spritesLength ) {
+    private Animation<TextureRegion> initializeAnimation(TextureRegion[] textureRegions, int spritesLength) {
         for (int index = 0; index < spritesLength; index++) {
             textureRegions[index] = new TextureRegion(new Texture(getSpriteImage(index)));
         }
@@ -46,30 +48,26 @@ public class GameStage {
         return "images/sprites/stages/" + (name + "/") + (index + ".png");
     }
 
+    @Override
     public void update(float deltaTime) {
         stateTime += deltaTime;
     }
 
+    @Override
     public void render(SpriteBatch batch) {
         TextureRegion currentFrame;
         currentFrame = stageAnimation.getKeyFrame(stateTime, true);
         batch.draw(currentFrame, 0, 0);
     }
 
+    @Override
     public void dispose() {
         for (TextureRegion textureRegion : stageFrames) {
             textureRegion.getTexture().dispose();
         }
     }
 
-    public int getStageTextureWidth() {
-        int width = 0;
-        for (TextureRegion textureRegion : stageFrames) {
-            width = textureRegion.getRegionWidth();
-        }
-        return width;
-    }
-
+    @Override
     public int getStageTextureHeight() {
         int height = 0;
         for (TextureRegion textureRegion : stageFrames) {
