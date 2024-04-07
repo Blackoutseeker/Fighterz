@@ -1,11 +1,12 @@
 package br.ufca.edu.fighterz.collision;
 
+import br.ufca.edu.fighterz.interfaces.CollisionProcessor;
 import br.ufca.edu.fighterz.state.PlayerState;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-public final class CharacterCollision {
+public final class CharacterCollision implements CollisionProcessor {
     private final PlayerState playerState;
     private final Rectangle bodyRectangle;
     private final Rectangle attackRectangle;
@@ -33,6 +34,7 @@ public final class CharacterCollision {
         this.playerPosition = playerPosition;
     }
 
+    @Override
     public void setHitboxesByType(final HitboxType hitboxType, final Hitbox[] hitboxes) {
         switch (hitboxType) {
             case LIGHT_KICK:
@@ -65,10 +67,12 @@ public final class CharacterCollision {
         }
     }
 
+    @Override
     public void setBodyRectangle(final float x, final float y, final float width, final float height) {
         bodyRectangle.set(playerPosition.x + x, playerPosition.y + y, width * scale, height * scale);
     }
 
+    @Override
     public void iterateHitboxes(final HitboxType hitboxType, final int currentFrameIndex,
                                 final int startIndex, final int endIndex) {
         final Hitbox[] hitboxes = getHitboxesByType(hitboxType);
@@ -90,10 +94,12 @@ public final class CharacterCollision {
         }
     }
 
+    @Override
     public Rectangle getBodyRectangle() {
         return bodyRectangle;
     }
 
+    @Override
     public Rectangle getAttackRectangle() {
         return attackRectangle;
     }
@@ -102,6 +108,7 @@ public final class CharacterCollision {
         attackRectangle.set(playerPosition.x, playerPosition.y, 0,0);
     }
 
+    @Override
     public boolean getHit(Rectangle attackRectangle, float deltaTime, Vector2 anotherCharacterPosition) {
         final boolean gettingHit = attackRectangle.overlaps(bodyRectangle);
         if (gettingHit) {
@@ -111,6 +118,13 @@ public final class CharacterCollision {
         return gettingHit;
     }
 
+    @Override
+    public boolean isBlocking() {
+        return playerState.isFacingRight && playerState.isWalkingLeft ||
+                !playerState.isFacingRight && playerState.isWalkingRight;
+    }
+
+    @Override
     public boolean checkBodyCollision(Rectangle bodyRectangle) {
         return this.bodyRectangle.overlaps(bodyRectangle);
     }
