@@ -2,6 +2,7 @@ package br.ufca.edu.fighterz;
 
 import br.ufca.edu.fighterz.interfaces.KeyboardInputProcessor;
 import br.ufca.edu.fighterz.state.PlayerState;
+import br.ufca.edu.fighterz.audio.AudioManager;
 
 import com.badlogic.gdx.Gdx;
 

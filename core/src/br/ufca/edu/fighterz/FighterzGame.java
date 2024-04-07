@@ -1,6 +1,7 @@
 package br.ufca.edu.fighterz;
 
 import br.ufca.edu.fighterz.ui.HUD;
+import br.ufca.edu.fighterz.audio.AudioManager;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;

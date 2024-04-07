@@ -5,6 +5,7 @@ import br.ufca.edu.fighterz.state.PlayerState;
 import br.ufca.edu.fighterz.sprites.CharacterAnimation;
 import br.ufca.edu.fighterz.collision.CharacterCollision;
 import br.ufca.edu.fighterz.collision.Hitbox;
+import br.ufca.edu.fighterz.audio.AudioManager;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;

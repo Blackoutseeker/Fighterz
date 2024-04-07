@@ -1,5 +1,6 @@
-package br.ufca.edu.fighterz;
+package br.ufca.edu.fighterz.audio;
 
+import br.ufca.edu.fighterz.PlayableCharacter;
 import br.ufca.edu.fighterz.interfaces.AudioManagerBehavior;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
