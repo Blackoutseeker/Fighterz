@@ -1,5 +1,8 @@
 package br.ufca.edu.fighterz;
 
+import br.ufca.edu.fighterz.input.Input1;
+import br.ufca.edu.fighterz.input.Input2;
+import br.ufca.edu.fighterz.input.InputHandler;
 import br.ufca.edu.fighterz.interfaces.CharacterBehavior;
 import br.ufca.edu.fighterz.state.PlayerState;
 import br.ufca.edu.fighterz.sprites.CharacterAnimation;

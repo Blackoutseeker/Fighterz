@@ -1,11 +1,12 @@
-package br.ufca.edu.fighterz;
+package br.ufca.edu.fighterz.input;
 
+import br.ufca.edu.fighterz.PlayableCharacter;
 import br.ufca.edu.fighterz.state.PlayerState;
 import br.ufca.edu.fighterz.audio.AudioManager;
 
 import com.badlogic.gdx.Input;
 
-public class Input1 extends InputHandler {
+public final class Input1 extends InputHandler {
     public Input1(final PlayableCharacter playableCharacter,
                   final PlayerState playerState,
                   final AudioManager audioManager) {

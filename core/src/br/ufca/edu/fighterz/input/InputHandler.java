@@ -1,12 +1,13 @@
-package br.ufca.edu.fighterz;
+package br.ufca.edu.fighterz.input;
 
+import br.ufca.edu.fighterz.PlayableCharacter;
 import br.ufca.edu.fighterz.interfaces.KeyboardInputProcessor;
 import br.ufca.edu.fighterz.state.PlayerState;
 import br.ufca.edu.fighterz.audio.AudioManager;
 
 import com.badlogic.gdx.Gdx;
 
-abstract class InputHandler implements KeyboardInputProcessor {
+public abstract class InputHandler implements KeyboardInputProcessor {
     private final PlayableCharacter playableCharacter;
     private final PlayerState playerState;
     private final AudioManager audioManager;
@@ -114,8 +115,7 @@ abstract class InputHandler implements KeyboardInputProcessor {
         }
     }
 
-    @Override
-    public void resetAutoTauntAnimation() {
+    private void resetAutoTauntAnimation() {
         playerState.idleTimer = 0f;
         playerState.autoTauntStateTime = 0f;
         playerState.shouldPlayAutoTauntAnimation = false;
