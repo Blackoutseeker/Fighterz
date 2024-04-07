@@ -1,5 +1,7 @@
 package br.ufca.edu.fighterz;
 
+import br.ufca.edu.fighterz.ui.HUD;
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -12,7 +14,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-public class FighterzGame extends Game {
+public final class FighterzGame extends Game {
 	public final static String GAME_TITLE = "Fighterz";
 	private final boolean DEBUG = true;
 	private SpriteBatch batch;
@@ -26,7 +28,8 @@ public class FighterzGame extends Game {
 	private DebugFPSLogger debugFPSLogger;
 	private ShapeRenderer shapeRenderer;
 	private AudioManager audioManager;
-
+	private HUD hud1;
+	private HUD hud2;
 
 	@Override
 	public void create() {
@@ -42,11 +45,17 @@ public class FighterzGame extends Game {
 
 		float worldCenter = camera.viewportWidth / 2f;
 		camera.position.x = worldCenter;
+
 		audioManager = new AudioManager();
 		audioManager.load();
 		audioManager.playBackgroundMusic();
-		character1 = new Character(PlayableCharacter.RYU, .8f, worldCenter, 10, false, audioManager);
-		character2 = new Character(PlayableCharacter.RYU, .8f, worldCenter + 80, 10, true, audioManager);
+
+		final PlayableCharacter playableCharacter1 = PlayableCharacter.RYU;
+		final PlayableCharacter playableCharacter2 = PlayableCharacter.RYU;
+		character1 = new Character(playableCharacter1, .8f, worldCenter, 10, false, audioManager);
+		character2 = new Character(playableCharacter2, .8f, worldCenter + 80, 10, true, audioManager);
+		hud1 = new HUD(batch, character1.getPlayerState(), playableCharacter1, false);
+		hud2 = new HUD(batch, character2.getPlayerState(), playableCharacter2, true);
 
 		float cameraHeight = camera.viewportHeight;
 		float leftX = camera.position.x - worldCenter;
@@ -79,6 +88,9 @@ public class FighterzGame extends Game {
 
 		gameStage.update(Gdx.graphics.getDeltaTime());
 		gameStage.render(batch);
+
+		hud1.draw(camera.position.x, camera.position.y);
+		hud2.draw(camera.position.x, camera.position.y);
 
 		character1.update(Gdx.graphics.getDeltaTime(), character2.getCollision(), character2.getPosition(),
 				leftEdge, rightEdge);
@@ -131,6 +143,8 @@ public class FighterzGame extends Game {
 		gameStage.dispose();
 		shapeRenderer.dispose();
 		audioManager.dispose();
+		hud1.dispose();
+		hud2.dispose();
 		super.dispose();
 	}
 }
