@@ -99,7 +99,8 @@ public abstract class InputHandler implements KeyboardInputProcessor {
 
     @Override
     public void handleInput(float deltaTime) {
-        if (!playerState.isPlayerInputLocked && !playerState.isGettingHit) {
+        if (!playerState.isPlayerInputLocked && !playerState.isGettingHit
+                && !playerState.isDefeated && !playerState.isWinning) {
             handleMovementKeys();
             if (!playerState.isAttacking) {
                 handleAttackKeys();
@@ -107,7 +108,8 @@ public abstract class InputHandler implements KeyboardInputProcessor {
             }
         }
         if (!playerState.isWalkingLeft && !playerState.isWalkingRight
-                && !playerState.isCrouching && !playerState.isAttacking) {
+                && !playerState.isCrouching && !playerState.isAttacking
+                && !playerState.isDefeated && !playerState.isWinning) {
             playerState.idleTimer += deltaTime;
         }
         else {
