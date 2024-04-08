@@ -15,6 +15,7 @@ public final class HUD implements HUDBehavior {
     private final boolean isSecondPlayer;
     private final float scale = 0.4f;
     private final Sprite rectangleSprite;
+    private final Texture greenBar = new Texture(Gdx.files.internal("images/sprites/hud/GREEN.png"));
     private final Texture yellowBar = new Texture(Gdx.files.internal("images/sprites/hud/YELLOW.png"));
     private final Texture orangeBar = new Texture(Gdx.files.internal("images/sprites/hud/ORANGE.png"));
     private final Sprite portraitSprite;
@@ -27,7 +28,7 @@ public final class HUD implements HUDBehavior {
         this.playerState = playerState;
         this.isSecondPlayer = isSecondPlayer;
 
-        rectangleSprite = new Sprite(new Texture(Gdx.files.internal("images/sprites/hud/GREEN.png")));
+        rectangleSprite = new Sprite(greenBar);
         hudSprite = new Sprite(new Texture(Gdx.files.internal("images/sprites/hud/HUD.png")));
         hudSprite.flip(isSecondPlayer, false);
         portraitSprite = new Sprite(getPortraitTexture(playableCharacter));
@@ -37,7 +38,8 @@ public final class HUD implements HUDBehavior {
     @Override
     public void draw(float x, float y) {
         final float lifeBarWidth = getLifeBarWidth();
-        if (playerState.life < maxLifeValue && playerState.life > maxLifeValue / 2) {
+        if (playerState.life == maxLifeValue) rectangleSprite.setRegion(greenBar);
+        else if (playerState.life < maxLifeValue && playerState.life > maxLifeValue / 2) {
             rectangleSprite.setRegion(yellowBar);
         }
         else if (playerState.life <= maxLifeValue / 2) {
