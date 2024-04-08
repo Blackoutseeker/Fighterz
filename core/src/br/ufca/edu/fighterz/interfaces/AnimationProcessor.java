@@ -31,4 +31,6 @@ public interface AnimationProcessor {
     Animation<TextureRegion> getLightHitAnimation();
 
     Animation<TextureRegion> getBlockAnimation();
+    Animation<TextureRegion> getDefeatAnimation();
+    Animation<TextureRegion> getWinAnimation();
 }

@@ -23,6 +23,8 @@ enum PlayerAction {
     STRONG_KICK,
     LIGHT_HIT,
     BLOCK,
+    DEFEAT,
+    WIN,
 }
 
 final public class CharacterAnimation implements AnimationProcessor {
@@ -41,6 +43,8 @@ final public class CharacterAnimation implements AnimationProcessor {
     private final TextureRegion[] strongKickFrames;
     private final TextureRegion[] lightHitFrames;
     private final TextureRegion[] blockFrames;
+    private final TextureRegion[] defeatFrames;
+    private final TextureRegion[] winFrames;
     private final Animation<TextureRegion> idleAnimation;
     private final Animation<TextureRegion> crouchAnimation;
     private final Animation<TextureRegion> moveForwardAnimation;
@@ -52,6 +56,8 @@ final public class CharacterAnimation implements AnimationProcessor {
     private final Animation<TextureRegion> strongKickAnimation;
     private final Animation<TextureRegion> lightHitAnimation;
     private final Animation<TextureRegion> blockAnimation;
+    private final Animation<TextureRegion> defeatAnimation;
+    private final Animation<TextureRegion> winAnimation;
 
     public CharacterAnimation(final PlayableCharacter playableCharacter, final float scale, final float frameDuration) {
         this.playableCharacter = playableCharacter;
@@ -70,6 +76,8 @@ final public class CharacterAnimation implements AnimationProcessor {
         final int strongKickFramesLength = getFramesLength(PlayerAction.STRONG_KICK);
         final int lightHitFramesLength = getFramesLength(PlayerAction.LIGHT_HIT);
         final int blockFramesLength = getFramesLength(PlayerAction.BLOCK);
+        final int defeatFramesLength = getFramesLength(PlayerAction.DEFEAT);
+        final int winFramesLength = getFramesLength(PlayerAction.WIN);
 
         idleFrames = new TextureRegion[idleFramesLength];
         crouchFrames = new TextureRegion[crouchFramesLength];
@@ -82,6 +90,8 @@ final public class CharacterAnimation implements AnimationProcessor {
         strongKickFrames = new TextureRegion[strongKickFramesLength];
         lightHitFrames = new TextureRegion[lightHitFramesLength];
         blockFrames = new TextureRegion[blockFramesLength];
+        defeatFrames = new TextureRegion[defeatFramesLength];
+        winFrames = new TextureRegion[winFramesLength];
 
         idleAnimation = initializeAnimation(PlayerAction.IDLE, idleFrames, idleFramesLength);
         crouchAnimation = initializeAnimation(PlayerAction.CROUCH, crouchFrames, crouchFramesLength);
@@ -94,6 +104,8 @@ final public class CharacterAnimation implements AnimationProcessor {
         strongKickAnimation = initializeAnimation(PlayerAction.STRONG_KICK, strongKickFrames, strongKickFramesLength);
         lightHitAnimation = initializeAnimation(PlayerAction.LIGHT_HIT, lightHitFrames, lightHitFramesLength);
         blockAnimation = initializeAnimation(PlayerAction.BLOCK, blockFrames, blockFramesLength);
+        defeatAnimation = initializeAnimation(PlayerAction.DEFEAT, defeatFrames, defeatFramesLength);
+        winAnimation = initializeAnimation(PlayerAction.WIN, winFrames, winFramesLength);
     }
 
     private Animation<TextureRegion> initializeAnimation(PlayerAction playerAction, TextureRegion[] textureRegions, int spritesLength) {
@@ -146,6 +158,8 @@ final public class CharacterAnimation implements AnimationProcessor {
         disposeTextureRegion(strongKickFrames);
         disposeTextureRegion(lightHitFrames);
         disposeTextureRegion(blockFrames);
+        disposeTextureRegion(defeatFrames);
+        disposeTextureRegion(winFrames);
         sprite.getTexture().dispose();
     }
 
@@ -207,5 +221,15 @@ final public class CharacterAnimation implements AnimationProcessor {
     @Override
     public Animation<TextureRegion> getBlockAnimation() {
         return blockAnimation;
+    }
+
+    @Override
+    public Animation<TextureRegion> getDefeatAnimation() {
+        return defeatAnimation;
+    }
+
+    @Override
+    public Animation<TextureRegion> getWinAnimation() {
+        return winAnimation;
     }
 }
