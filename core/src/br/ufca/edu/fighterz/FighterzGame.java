@@ -14,6 +14,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Timer;
 
 public final class FighterzGame extends Game {
 	public final static String GAME_TITLE = "Fighterz";
@@ -31,6 +33,9 @@ public final class FighterzGame extends Game {
 	private AudioManager audioManager;
 	private HUD hud1;
 	private HUD hud2;
+	private float initialWorldCenterPositionX;
+	private Vector2 initialCharacterPosition1;
+	private Vector2 initialCharacterPosition2;
 
 	@Override
 	public void create() {
@@ -46,6 +51,7 @@ public final class FighterzGame extends Game {
 
 		float worldCenter = camera.viewportWidth / 2f;
 		camera.position.x = worldCenter;
+		initialWorldCenterPositionX = worldCenter;
 
 		audioManager = new AudioManager();
 		audioManager.load();
@@ -63,6 +69,9 @@ public final class FighterzGame extends Game {
 		float rightX = camera.position.x + (worldCenter) - 5;
 		leftEdge = new Rectangle(leftX, 0, 5, cameraHeight);
 		rightEdge = new Rectangle(rightX, 0, 5, cameraHeight);
+
+		initialCharacterPosition1 = new Vector2(character1.getPosition().cpy());
+		initialCharacterPosition2 = new Vector2(character2.getPosition().cpy());
 	}
 
 	@Override
@@ -100,6 +109,17 @@ public final class FighterzGame extends Game {
 		character2.update(Gdx.graphics.getDeltaTime(), character1.getCollision(), character1.getPosition(),
 				leftEdge, rightEdge);
 		character2.render(batch, Gdx.graphics.getDeltaTime());
+
+		if (character1.getPlayerState().life <= 0) {
+			character1.getPlayerState().isDefeated = true;
+			character2.getPlayerState().isWinning = true;
+			resetGame();
+		}
+		if (character2.getPlayerState().life <= 0) {
+			character1.getPlayerState().isWinning = true;
+			character2.getPlayerState().isDefeated = true;
+			resetGame();
+		}
 
 		batch.end();
 
@@ -147,5 +167,18 @@ public final class FighterzGame extends Game {
 		hud1.dispose();
 		hud2.dispose();
 		super.dispose();
+	}
+
+	private void resetGame() {
+		Timer.schedule(new Timer.Task() {
+			@Override
+			public void run() {
+				camera.position.x = initialWorldCenterPositionX;
+				character1.getPlayerState().resetAllStates();
+				character2.getPlayerState().resetAllStates();
+				character1.getPosition().set(initialCharacterPosition1.cpy());
+				character2.getPosition().set(initialCharacterPosition2.cpy());
+			}
+		}, 2);
 	}
 }
