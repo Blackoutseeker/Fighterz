@@ -17,6 +17,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Timer;
 
+import java.io.FileNotFoundException;
+
 public final class FighterzGame extends Game {
 	public final static String GAME_TITLE = "Fighterz";
 	private final boolean DEBUG = true;
@@ -59,8 +61,14 @@ public final class FighterzGame extends Game {
 
 		final PlayableCharacter playableCharacter1 = PlayableCharacter.RYU;
 		final PlayableCharacter playableCharacter2 = PlayableCharacter.RYU;
-		character1 = new Character(playableCharacter1, .8f, worldCenter, 10, false, audioManager);
-		character2 = new Character(playableCharacter2, .8f, worldCenter + 80, 10, true, audioManager);
+
+        try {
+            character1 = new Character(playableCharacter1, .8f, worldCenter, 10, false, audioManager);
+        	character2 = new Character(playableCharacter2, .8f, worldCenter + 80, 10, true, audioManager);
+        } catch (FileNotFoundException exception) {
+            throw new RuntimeException(exception);
+        }
+
 		hud1 = new HUD(batch, character1.getPlayerState(), playableCharacter1, false);
 		hud2 = new HUD(batch, character2.getPlayerState(), playableCharacter2, true);
 

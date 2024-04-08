@@ -17,6 +17,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
+import java.io.FileNotFoundException;
+
 public final class Character implements CharacterBehavior {
     private final PlayableCharacter playableCharacter;
     private final Sprite sprite;
@@ -43,7 +45,7 @@ public final class Character implements CharacterBehavior {
     public Character(final PlayableCharacter playableCharacter, final float scale,
                      final float x, final float y,
                      final boolean isSecondPlayer,
-                     final AudioManager audioManager) {
+                     final AudioManager audioManager) throws FileNotFoundException {
         this.playableCharacter = playableCharacter;
         this.audioManager = audioManager;
         playerState = new PlayerState();

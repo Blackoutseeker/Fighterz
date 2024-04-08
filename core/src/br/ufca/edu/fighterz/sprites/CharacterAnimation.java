@@ -11,6 +11,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import java.io.FileNotFoundException;
+
 enum PlayerAction {
     IDLE,
     CROUCH,
@@ -59,7 +61,9 @@ final public class CharacterAnimation implements AnimationProcessor {
     private final Animation<TextureRegion> defeatAnimation;
     private final Animation<TextureRegion> winAnimation;
 
-    public CharacterAnimation(final PlayableCharacter playableCharacter, final float scale, final float frameDuration) {
+    public CharacterAnimation(final PlayableCharacter playableCharacter,
+                              final float scale,
+                              final float frameDuration) throws FileNotFoundException {
         this.playableCharacter = playableCharacter;
         this.scale = scale;
         this.frameDuration = frameDuration;
@@ -116,18 +120,22 @@ final public class CharacterAnimation implements AnimationProcessor {
         return new Animation<>(frameDuration, textureRegions);
     }
 
-    private int getFramesLength(PlayerAction playerAction) {
-        FileHandle dirHandle = Gdx.files.internal("images/sprites/characters/" + (playableCharacter + "/") + (playerAction + "/"));
-        FileHandle[] files = dirHandle.list();
+    private int getFramesLength(PlayerAction playerAction) throws FileNotFoundException {
+        try {
+            FileHandle dirHandle = Gdx.files.internal("images/sprites/characters/" + (playableCharacter + "/") + (playerAction + "/"));
+            FileHandle[] files = dirHandle.list();
 
-        int pngCount = 0;
-        for (FileHandle file : files) {
-            if (file.extension().equalsIgnoreCase("png")) {
-                pngCount++;
+            int pngCount = 0;
+            for (FileHandle file : files) {
+                if (file.extension().equalsIgnoreCase("png")) {
+                    pngCount++;
+                }
             }
-        }
 
-        return pngCount;
+            return pngCount;
+        } catch (Exception error) {
+            throw new FileNotFoundException();
+        }
     }
 
     private String getFrameImage(PlayerAction playerAction, int index) {
