@@ -33,11 +33,12 @@ public final class Character implements CharacterBehavior {
     private final Animation<TextureRegion> strongKickAnimation;
     private final Animation<TextureRegion> lightHitAnimation;
     private final Animation<TextureRegion> blockAnimation;
+    private final Animation<TextureRegion> defeatAnimation;
+    private final Animation<TextureRegion> winAnimation;
     private final Vector2 position;
     private final CharacterCollision collision;
     private final InputHandler inputHandler;
     private final AudioManager audioManager;
-    private final boolean isSecondPlayer;
 
     public Character(final PlayableCharacter playableCharacter, final float scale,
                      final float x, final float y,
@@ -45,7 +46,6 @@ public final class Character implements CharacterBehavior {
                      final AudioManager audioManager) {
         this.playableCharacter = playableCharacter;
         this.audioManager = audioManager;
-        this.isSecondPlayer = isSecondPlayer;
         playerState = new PlayerState();
         characterAnimation = new CharacterAnimation(playableCharacter, scale, 1f / 12f);
         sprite = characterAnimation.getSprite();
@@ -66,6 +66,8 @@ public final class Character implements CharacterBehavior {
         strongKickAnimation = characterAnimation.getStrongKickAnimation();
         lightHitAnimation = characterAnimation.getLightHitAnimation();
         blockAnimation = characterAnimation.getBlockAnimation();
+        defeatAnimation = characterAnimation.getDefeatAnimation();
+        winAnimation = characterAnimation.getWinAnimation();
     }
 
     @Override
@@ -96,12 +98,12 @@ public final class Character implements CharacterBehavior {
                 playerState.isBlocking = true;
             }
             if (!playerState.isGettingHit && !isBlocking) {
-                if (!isSecondPlayer)
-                    audioManager.playCharacterSound(playableCharacter, 5);
-                else
-                    audioManager.playCharacterSound(playableCharacter, 5);
+                audioManager.playCharacterSound(playableCharacter, 5);
                 playerState.isGettingHit = true;
                 playerState.life -= 10;
+                if (playerState.life <= 0) {
+                    audioManager.playCharacterSound(playableCharacter, 6);
+                }
             }
 
             playerState.idleTimer = 0f;
@@ -113,6 +115,11 @@ public final class Character implements CharacterBehavior {
             playerState.isStrongPunching = false;
             playerState.isLightKicking = false;
             playerState.isStrongKicking = false;
+        }
+        else {
+            if (playerState.isBlocking) {
+                playerState.isBlocking = false;
+            }
         }
 
         if (playerState.idleTimer >= 7f) {
@@ -154,7 +161,25 @@ public final class Character implements CharacterBehavior {
     public void render(SpriteBatch batch, float deltaTime) {
         TextureRegion currentFrame;
 
-        if (playerState.isGettingHit) {
+        if (playerState.isWinning) {
+            if (!winAnimation.isAnimationFinished(playerState.currentStateTime)) {
+                currentFrame = winAnimation.getKeyFrame(playerState.currentStateTime, false);
+                playerState.currentStateTime += deltaTime;
+            }
+            else {
+                currentFrame = winAnimation.getKeyFrame(winAnimation.getAnimationDuration(), false);
+            }
+        }
+        else if (playerState.isDefeated) {
+            if (!defeatAnimation.isAnimationFinished(playerState.currentStateTime)) {
+                currentFrame = defeatAnimation.getKeyFrame(playerState.currentStateTime, false);
+                playerState.currentStateTime += deltaTime;
+            }
+            else {
+                currentFrame = defeatAnimation.getKeyFrame(defeatAnimation.getAnimationDuration(), false);
+            }
+        }
+        else if (playerState.isGettingHit) {
             if (!lightHitAnimation.isAnimationFinished(playerState.currentStateTime)) {
                 currentFrame = lightHitAnimation.getKeyFrame(playerState.currentStateTime, false);
                 playerState.currentStateTime += deltaTime;
@@ -171,9 +196,7 @@ public final class Character implements CharacterBehavior {
                 playerState.currentStateTime += deltaTime;
             }
             else {
-                playerState.isBlocking = false;
-                currentFrame = idleAnimation.getKeyFrame(playerState.currentStateTime, true);
-                playerState.currentStateTime = 0f;
+                currentFrame = blockAnimation.getKeyFrame(blockAnimation.getAnimationDuration(), false);
             }
         }
         else if (playerState.isWalkingLeft) {
